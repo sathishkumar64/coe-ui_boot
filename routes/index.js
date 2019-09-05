@@ -14,6 +14,10 @@ router.get('/home', function (req, res, next) {
     res.render('index', {
       countrys: countrys
     });
+  }).catch(err => {
+    res.render('index', {
+      countrys: []
+    });
   });
 });
 
@@ -29,6 +33,11 @@ router.get('/schools', function (req, res, next) {
   httpClient.get(constants.SCHOOL_HOST, constants.SCHOOL_PORT, constants.PATH_ALL_SCHOOL).then(schools => {
     res.render('schools', {
       data: schools,
+      source : source  
+    });
+  }).catch(err => {
+    res.render('schools', {
+      data: [] ,
       source : source  
     });
   });
@@ -55,6 +64,11 @@ router.post("/add-school", function (req, res, next) {
 
   httpClient.post(constants.SCHOOL_HOST, constants.SCHOOL_PORT, constants.PATH_ADD_SCHOOL, JSON.stringify(payload)).then(() => {
     res.redirect('/schools?source=add-school');
+  }).catch(err => {
+    res.render("error" , {
+      message : "Application failed to add school.",
+      error : err
+    });
   });
 });
 
@@ -64,6 +78,11 @@ router.post('/search-school', function (req, res, next) {
   httpClient.get(constants.SCHOOL_HOST, constants.SCHOOL_PORT, constants.PATH_SEARCH_SCHOOL_BY_NAME + encodeURI(schoolname)).then(school => {
     res.render('schools', {
       data: [school],
+      source: "search-school"
+    });
+  }).catch(err => {
+    res.render('schools', {
+      data: [],
       source: "search-school"
     });
   });
@@ -78,6 +97,13 @@ router.get('/students', function (req, res, next) {
   httpClient.get(constants.STUDENT_HOST, constants.STUDENT_PORT, constants.PATH_ALL_STUDENTS).then(students => {
     res.render('students', {
       data: students,
+      source : source,
+      studentAppInfo : "",
+      jmsMessage : ""
+    });
+  }).catch(err => {
+    res.render('students', {
+      data: [],
       source : source,
       studentAppInfo : "",
       jmsMessage : ""
@@ -100,6 +126,11 @@ router.post("/add-student", function (req, res, next) {
 
   httpClient.post(constants.STUDENT_HOST, constants.STUDENT_PORT, constants.PATH_ADD_STUDENT, JSON.stringify(payload)).then(() => {
     res.redirect('/students?source=add-student');
+  }).catch(err => {
+    res.render("error" , {
+      message : "Application failed to add Student.",
+      error : err
+    });
   });
 });
 
@@ -133,6 +164,13 @@ router.post('/search-students', function (req, res, next) {
       source: "search-students",
       studentAppInfo : studentAppInfo,
       jmsMessage : jmsMessage
+    });
+  }).catch(err => {
+    res.render('students', {
+      data: [],
+      source : "search-students" ,
+      studentAppInfo : "",
+      jmsMessage : ""
     });
   });
 });

@@ -5,21 +5,22 @@ const https = require('https');
 var protocol = constants.PROTOCOL;
 var httpClinet = https;
 
-if(protocol == 'http'){
+if (protocol == 'http') {
     httpClinet = http;
 }
 
-var get = function httpGet(host , port , path) {
+var get = function httpGet(host, port, path) {
 
     var options = {
         host: host,
-        port : port,
-        path: path ,
+        port: port,
+        path: path,
         method: 'GET'
     }
 
     return new Promise((resolve, reject) => {
         var req = httpClinet.request(options, (resp) => {
+            console.log("INFO : HTTP Communication . GET " + protocol + "://" + host + ":" + port + path );
             var returnData = "";
             // on succ
             resp.on('data', chunk => {
@@ -29,24 +30,25 @@ var get = function httpGet(host , port , path) {
             // on end
             resp.on('end', () => {
                 var pop = JSON.parse(returnData);
+                console.log("INFO : Response = " + pop);
                 resolve(pop);
             });
 
         }).on("error", (err) => {
-            console.log("Error occured during GET " + host + query + " API call => " + error);
-            reject(error);
+            console.error("ERR : HTTP Communication Failure . GET " + protocol + "://" + host + ":" + port + path + ". error = " + err);
+            reject(err);
         });
 
         req.end();
     });
 };
 
-var post = function httpPost( host, port , path , payload) {
+var post = function httpPost(host, port, path, payload) {
 
     var options = {
         host: host,
-        port : port,
-        path: path ,
+        port: port,
+        path: path,
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -56,6 +58,7 @@ var post = function httpPost( host, port , path , payload) {
 
     return new Promise((resolve, reject) => {
         var req = httpClinet.request(options, res => {
+            console.log("INFO : HTTP Communication . POST " + protocol + "://" + host + ":" + port + path );
             res.setEncoding('utf8');
             var returnData = "";
 
@@ -65,13 +68,13 @@ var post = function httpPost( host, port , path , payload) {
 
             res.on('end', () => {
                 var pop = JSON.parse(returnData);
+                console.log("INFO : Response = " + pop);
                 resolve(pop);
             });
 
-            res.on("error", (error) => {
-                console.log("Error occured during POST " + host + path + " API call => " + error);
-                reject(error);
-            });
+        }).on("error", (err) => {
+            console.error("ERR : HTTP Communication Failure . POST " + protocol + "://" + host + ":" + port + path + ". error = " + err);
+            reject(err);
         });
 
         req.write(payload);
