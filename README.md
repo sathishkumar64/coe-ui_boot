@@ -1,4 +1,4 @@
-# coe-ui
+# coe-ui(BootStrap)
 
 1. Update env.list for environment variables. <br />
 For host machine studentService and school Service use host as 'host.docker.internal'
