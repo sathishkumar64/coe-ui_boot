@@ -86,7 +86,7 @@ router.post("/add-school", function (req, res, next) {
   });
 });
 
-router.post('/search-school', function (req, res, next) {
+router.post('/search-school', function (req, res, next) {  
   console.log(constants.PATH_SEARCH_SCHOOL_BY_NAME + encodeURI(schoolname));
   var schoolname = req.body.sname;
   httpClient.get(constants.SCHOOL_HOST, constants.SCHOOL_PORT, constants.PATH_SEARCH_SCHOOL_BY_NAME + encodeURI(schoolname) ,{}).then(school => {
@@ -158,6 +158,7 @@ router.post("/add-student", function (req, res, next) {
 });
 
 router.post('/search-students', function (req, res, next) {
+  req.header("end-user", "sathish");
   var schoolname = req.body.sname;
   var sess = req.session;
   var headers = {};
