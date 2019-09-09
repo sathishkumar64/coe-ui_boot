@@ -5,24 +5,32 @@ const constants = require("../utils/constants");
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
+  var sess = req.session;
+  sess.name = null;
   res.redirect('/home');
 });
 
 router.get('/home', function (req, res, next) {
-  console.log(constants.COUNTRY_HOST + constants.COUNTRY_PORT + constants.COUNTRY_PATH);
-  httpClient.get(constants.COUNTRY_HOST, constants.COUNTRY_PORT, constants.COUNTRY_PATH).then(countrys => {
+  httpClient.get(constants.COUNTRY_HOST, constants.COUNTRY_PORT, constants.COUNTRY_PATH , {}).then(countrys => {
     res.render('index', {
-      countrys: countrys
+      countrys: countrys ,
+      req : req, 
+      res : res
     });
   }).catch(err => {
     res.render('index', {
-      countrys: []
+      countrys: [],
+      req : req, 
+      res : res
     });
   });
 });
 
 router.get('/about', function (req, res, next) {
-  res.render('about');
+  res.render('about' , {
+    req : req, 
+    res : res
+  });
 });
 
 router.get('/schools', function (req, res, next) {
@@ -30,15 +38,19 @@ router.get('/schools', function (req, res, next) {
   if(!source){
     source = "top-nav";
   }
-  httpClient.get(constants.SCHOOL_HOST, constants.SCHOOL_PORT, constants.PATH_ALL_SCHOOL).then(schools => {
+  httpClient.get(constants.SCHOOL_HOST, constants.SCHOOL_PORT, constants.PATH_ALL_SCHOOL ,{}).then(schools => {
     res.render('schools', {
       data: schools,
-      source : source  
+      source : source ,
+      req : req, 
+      res : res
     });
   }).catch(err => {
     res.render('schools', {
       data: [] ,
-      source : source  
+      source : source,
+      req : req, 
+      res : res  
     });
   });
 });
@@ -62,12 +74,14 @@ router.post("/add-school", function (req, res, next) {
     }
   }
 
-  httpClient.post(constants.SCHOOL_HOST, constants.SCHOOL_PORT, constants.PATH_ADD_SCHOOL, JSON.stringify(payload)).then(() => {
+  httpClient.post(constants.SCHOOL_HOST, constants.SCHOOL_PORT, constants.PATH_ADD_SCHOOL, JSON.stringify(payload) ,{}).then(() => {
     res.redirect('/schools?source=add-school');
   }).catch(err => {
     res.render("error" , {
       message : "Application failed to add school.",
-      error : err
+      error : err ,
+      req : req, 
+      res : res
     });
   });
 });
@@ -75,38 +89,45 @@ router.post("/add-school", function (req, res, next) {
 router.post('/search-school', function (req, res, next) {
   console.log(constants.PATH_SEARCH_SCHOOL_BY_NAME + encodeURI(schoolname));
   var schoolname = req.body.sname;
-  httpClient.get(constants.SCHOOL_HOST, constants.SCHOOL_PORT, constants.PATH_SEARCH_SCHOOL_BY_NAME + encodeURI(schoolname)).then(school => {
+  httpClient.get(constants.SCHOOL_HOST, constants.SCHOOL_PORT, constants.PATH_SEARCH_SCHOOL_BY_NAME + encodeURI(schoolname) ,{}).then(school => {
     res.render('schools', {
       data: [school],
-      source: "search-school"
+      source: "search-school",
+      req : req, 
+      res : res
     });
   }).catch(err => {
     res.render('schools', {
       data: [],
-      source: "search-school"
+      source: "search-school",
+      req : req, 
+      res : res
     });
   });
 });
 
 router.get('/students', function (req, res, next) {
-  console.log(constants.STUDENT_HOST + constants.STUDENT_PORT + constants.PATH_ALL_STUDENTS)
   var source = req.query.source;
   if(!source){
     source = "top-nav";
   }
-  httpClient.get(constants.STUDENT_HOST, constants.STUDENT_PORT, constants.PATH_ALL_STUDENTS).then(students => {
+  httpClient.get(constants.STUDENT_HOST, constants.STUDENT_PORT, constants.PATH_ALL_STUDENTS , {}).then(students => {
     res.render('students', {
       data: students,
       source : source,
       studentAppInfo : "",
-      jmsMessage : ""
+      jmsMessage : "",
+      req : req, 
+      res : res
     });
   }).catch(err => {
     res.render('students', {
       data: [],
       source : source,
       studentAppInfo : "",
-      jmsMessage : ""
+      jmsMessage : "",
+      req : req, 
+      res : res
     });
   });
 });
@@ -124,20 +145,29 @@ router.post("/add-student", function (req, res, next) {
     "schoolname": schoolname
   }
 
-  httpClient.post(constants.STUDENT_HOST, constants.STUDENT_PORT, constants.PATH_ADD_STUDENT, JSON.stringify(payload)).then(() => {
+  httpClient.post(constants.STUDENT_HOST, constants.STUDENT_PORT, constants.PATH_ADD_STUDENT, JSON.stringify(payload) ,{}).then(() => {
     res.redirect('/students?source=add-student');
   }).catch(err => {
     res.render("error" , {
       message : "Application failed to add Student.",
-      error : err
+      error : err,
+      req : req, 
+      res : res
     });
   });
 });
 
 router.post('/search-students', function (req, res, next) {
   var schoolname = req.body.sname;
-  console.log(constants.SCHOOL_HOST, constants.SCHOOL_PORT, constants.PATH_SEARCH_STUDENTS_BY_SCHOOL + encodeURI(schoolname))
-  httpClient.get(constants.SCHOOL_HOST, constants.SCHOOL_PORT, constants.PATH_SEARCH_STUDENTS_BY_SCHOOL + encodeURI(schoolname)).then(students => {
+  var sess = req.session;
+  var headers = {};
+  if(sess.name){
+    headers = {
+      "end-user" : sess.name
+    };
+  }
+  
+  httpClient.get(constants.SCHOOL_HOST, constants.SCHOOL_PORT, constants.PATH_SEARCH_STUDENTS_BY_SCHOOL + encodeURI(schoolname) , headers).then(students => {
     if(!students.studentInfo || !students.studentInfo.listStudent){
       listStudent = [];
     }else{
@@ -163,16 +193,35 @@ router.post('/search-students', function (req, res, next) {
       data: listStudent ,
       source: "search-students",
       studentAppInfo : studentAppInfo,
-      jmsMessage : jmsMessage
+      jmsMessage : jmsMessage,
+      req : req, 
+      res : res
     });
   }).catch(err => {
     res.render('students', {
       data: [],
       source : "search-students" ,
       studentAppInfo : "",
-      jmsMessage : ""
+      jmsMessage : "",
+      req : req, 
+      res : res
     });
   });
+});
+
+router.post('/login' , function(req , res , next ){
+  var username = req.body.name;
+  backURL=req.header('Referer') || '/';
+  var sess = req.session;
+  sess.name = username;
+  res.redirect(backURL);
+});
+
+router.get('/logout' , function(req , res , next ){
+  backURL=req.header('Referer') || '/';
+  var sess = req.session;
+  sess.name = null;
+  res.redirect(backURL);
 });
 
 router.get('/health-check' , function(req , res , next ){

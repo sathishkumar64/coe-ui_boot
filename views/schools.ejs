@@ -73,6 +73,7 @@
                                     <th>Name</th>
                                     <th>Education Mode</th>
                                     <th>Address</th>
+                                    <th>Rating</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -83,7 +84,12 @@
                                     <td><%= data[i].eduMode %></td>
                                     <td><%= data[i].address.address %>
                                         ,<%= data[i].address.city %>,<%= data[i].address.state %></td>
-                                </tr>
+                                    <%  if(data[i].rating){ %>
+                                    <td><%= data[i].rating %></td>
+                                    <% }else { %>
+                                    <td>0</td>
+                                    <% } %>
+                                    </tr>
                                 <% } %>
                             </tbody>
                         </table>

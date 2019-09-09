@@ -9,13 +9,14 @@ if (protocol == 'http') {
     httpClinet = http;
 }
 
-var get = function httpGet(host, port, path) {
+var get = function httpGet(host, port, path , headers) {
 
     var options = {
         host: host,
         port: port,
         path: path,
-        method: 'GET'
+        method: 'GET',
+        headers : headers
     }
 
     return new Promise((resolve, reject) => {
@@ -30,7 +31,7 @@ var get = function httpGet(host, port, path) {
             // on end
             resp.on('end', () => {
                 var pop = JSON.parse(returnData);
-                console.log("INFO : Response = " + pop);
+                console.log("INFO : Response = " + JSON.stringify(pop));
                 resolve(pop);
             });
 
@@ -43,17 +44,19 @@ var get = function httpGet(host, port, path) {
     });
 };
 
-var post = function httpPost(host, port, path, payload) {
+var post = function httpPost(host, port, path, payload , headersObj) {
+
+    var headers = Object.assign({
+        'Content-Type': 'application/json',
+        'Content-Length': payload.length
+    } , headersObj);
 
     var options = {
         host: host,
         port: port,
         path: path,
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Content-Length': payload.length
-        }
+        headers: headers
     }
 
     return new Promise((resolve, reject) => {
@@ -68,7 +71,7 @@ var post = function httpPost(host, port, path, payload) {
 
             res.on('end', () => {
                 var pop = JSON.parse(returnData);
-                console.log("INFO : Response = " + pop);
+                console.log("INFO : Response = " + JSON.stringify(pop));
                 resolve(pop);
             });
 
